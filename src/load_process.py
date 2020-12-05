@@ -9,7 +9,8 @@ def set_repos_attributes(repos_df, projection):
     # than the user as a whole.) Contributed is defined as partaking in
     # PR conversations.
     auth_repos = repos_df.groupby(["author", "repository"]).repository.count()
-    auth_max_repo = [auth_repos[node].idxmax() for node in projection.nodes()]
+    auth_max_repo = {node: auth_repos[node].idxmax()
+                     for node in projection.nodes()}
 
     # Get the most active repository contributed to per user
     # In other words, the repository that is most prominent among
@@ -26,30 +27,63 @@ def set_repos_attributes(repos_df, projection):
     # So, repositories that show up more will have a lower index which allows
     # us to sort easier.
     most_active =\
-        [sorted(auth_contrib[node],
+        {node:\
+         sorted(auth_contrib[node],
                 key=lambda repo: repocount[repocount.repo == repo].index)[0]
-         for node in projection.nodes()]
+         for node in projection.nodes()
+         }
 
     # Pull out the most prominent organization per user
     # The logic is similar to the above.
-    orgs = rust_df.organizations.explode().value_counts().reset_index()
+    orgs = repos_df.organizations.explode().value_counts().reset_index()
     orgs.columns = ["org", "count"]
-    auth_orgs = [sorted(repos_df.loc[repos_df.author == node,
+    auth_orgs = {node:\
+                 sorted(repos_df.loc[repos_df.author == node,
                                      "organizations"].values[0],
                         key=lambda uorg: orgs[orgs.org == uorg].index[0])
-                        for node in projection.nodes()]
+                        for node in projection.nodes()}
 
-    # Centrality measures
+    # Centrality measures [possibly?]
 
-    # Fix later because taking the first element seems hacky.
-    # FrozenSets are hashable hence we need to store them as attributes.
+    # Colors!
+    colors_map = {"core": "#ff5555",
+                  "middle": "#8be9fd",
+                  "projects": "#ff79c6"}
+
+    repos_type_map = {"amethyst/amethyst": "projects",
+                      "hyperium/hyper": "middle",
+                      "nix-rust/nix": "core",
+                      "rust-random/rand": "middle",
+                      "sfackler/rust-openssl": "core",
+                      "serde-rs/serde": "middle",
+                      "bevyengine/bevy": "projects",
+                      "retep998/winapi-rs": "core",
+                      "rayon-rs/rayon": "middle",
+                      "seanmonstar/reqwest": "projects",
+                      "crossbeam-rs/crossbeam": "middle",
+                      "rust-lang/regex": "core",
+                      "PistonDevelopers/piston": "projects",
+                      "rust-num/num": "middle",
+                      "dtolnay/syn": "core",
+                      "rust-lang/hashbrown": "core",
+                      "bitflags/bitflags": "middle",
+                      "BurntSushi/aho-corasick": "core"
+                      }
+
+    # Finally, add the attributes from above.
+    # This is a slow way to do this. Oops.
     nx.set_node_attributes(projection,
                            {node:
-                            {"most_active_repo": most_active,
-                             "max_repo": auth_max_repo,
-                             "organizations": auth_orgs
+                            {"most_active_repo": most_active[node],
+                             "max_repo": auth_max_repo[node],
+                             "organizations": auth_orgs[node],
+                             # (Rubbing chin emoji...this looks ugly)
+                             "color":\
+                                 colors_map[repos_type_map[most_active[node]]],
+                             "rtype": repos_type_map[most_active[node]]
                              }
                             for node in projection.nodes()})
+
 
 def process_repos_data(path="rust_repos.json",
                        top="pull_req_title",
