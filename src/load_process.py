@@ -122,7 +122,7 @@ def process_repos_data(path="rust_repos.json",
     # over from the DataFrame for some reason.
     set_repos_attributes(repos_df, projection)
 
-    return (repos_df, projection)
+    return repos_df, projection
 
 def homework(G, bw_start=1, bw_stop=5, step=1):
      degree = nx.average_neighbor_degree(G)
