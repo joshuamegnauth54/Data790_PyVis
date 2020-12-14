@@ -128,5 +128,20 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# Data sets
+# LaTeX
+*.log
+*.dvi
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.run.*
+*.fls
+*.fdb_latexmk
+*.fdb
+*.docx
+*.doc
+*.lot
+
+# Data
 *.csv

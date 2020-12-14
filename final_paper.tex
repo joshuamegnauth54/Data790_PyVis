@@ -1,0 +1,40 @@
+\documentclass[12pt, a4paper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{libertinust1math}
+
+\usepackage{csquotes}
+\usepackage[english]{babel}
+\usepackage[backend=biber, style=apa, sorting=nyt]{biblatex}
+\addbibresource{final.bib}
+
+\usepackage{graphicx}
+\usepackage{subcaption}
+\graphicspath{{./assets/}}
+
+\title{The distribution of Rust contributors: An analysis of a relatively young language}
+\author{Joshua Megnauth}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Introduction}
+Open source software is a unique phenomenon in terms of multiple areas of study including philosophy, sociology, political science, software development, and others. Mass, open cooperation is an immensely difficult proposition. Yet "the world runs on open source" is a common refrain that refers to the uncontroversial notion that free software is everywhere (\cite{fossdatasci2020}). Linux and FreeBSD run most of our software which in turn run open source servers. Middleware libraries such as OpenSSL glue together systems. Even consoles, such as every PlayStation beyond PlayStation 2, run on open source kernels. Sony notably uses FreeBSD in their consoles (\cite{ps4freebsd}).
+
+Free software's openness and prevalence alone makes research enticing. However, another factor is version control systems, like \textit{Git}, coupled with public sites that host projects such as \textit{GitHub} or \textit{GitLab}. GitHub and others host or mirror thousands of projects with a range of sizes. Much of the data on users, projects, and the projects they contribute to are public. The data are rich consisting of dates and times, textual data on conversations about contributions, as well as the heavily layered contributions themselves.
+
+One of the most interesting projects on GitHub is the Rust programming language. Rust is developed in a transparent manner with RFCs posted on GitHub (\cite{rustrfcs}). The majority\footnote{At least since 2011. Older Rust development from back when the language was a side project may be available somewhere.} of Rust's development from its early days to everything from Rust's current state is visible on GitHub (\cite{rustlang}). The merits of new language features or changes are discussed fairly publicly with recorded meetings available on issues (\cite{rustteammeets}). Finally, Rust is a relatively new programming language that takes aim at a stalwart, C as well as C++, C's classy sibling. That fact is not important by default, but Rust actually has momentum while challenging C which is perhaps one of the most fascinating recent developments in software development. For example, developers on Stack Overflow, a platform used to ask programming questions, voted Rust as their favorite language for four years in a row (\cite{stackoverflowdevsurvey2020}). Mozilla has successfully ported some of Firefox's code from C++ to Rust---a process colloquially called \textit{oxidation}.
+
+All of this is to say that the enterprising computational social scientist is able to more or less track Rust's development over at least a decade. Said scientist is able to watch contributors work on an exciting, growing language as well as work on important libraries used in the ecosystem, such as Serde. Researchers may focus on different areas depending on their interests. Open source has elements of anarchism, democracy, socialism, as well as liberalism depending on whom one asks. Thus, researchers in the humanities or the digital humanities, for example, have access to a large scale participatory program during growth. My research's route is different: complex networks.
+
+\subsection{Research question and caveats}
+
+\section{Background: Rust and GitHub analysis}
+
+\section{Methods}
+
+\section{Results}
+
+\end{document}
