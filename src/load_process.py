@@ -124,20 +124,3 @@ def process_repos_data(path="rust_repos.json",
 
     return repos_df, projection
 
-def homework(G, bw_start=1, bw_stop=5, step=1):
-     degree = nx.average_neighbor_degree(G)
-     bandwidths = np.arange(bw_start, bw_stop, step)
-
-     fig, axes = plt.subplots(len(bandwidths), figsize=(10, 10))
-     fig.suptitle("Density plots of average neighbor degree for Rust contribs",
-                 fontsize=14, y=1)
-
-     for bw, ax in zip(bandwidths, axes.flat):
-         sns.kdeplot(degree, cut=0, ax=ax, bw_adjust=bw, fill=True)
-         ax.set_title("Bandwidth = {}".format(bw))
-         ax.set_xlabel("Average neighbor degree")
-
-     fig.tight_layout()
-     return (fig, axes)
-
-homework(projection, 0.2, 3, 0.5)

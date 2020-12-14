@@ -3,7 +3,7 @@
 import networkx as nx
 from matplotlib.patches import Patch
 
-from joshnettools.gamersdraw import draw_degree_centrality
+from joshnettools.gamersdraw import draw_degree_centrality, add_network_leg
 from joshnettools.randomnet import random_clust, random_density,\
     random_deg_cent, random_deg_assort, random_assort, dispatcher
 from joshnettools.pvalueplots import p_value_plots
@@ -62,8 +62,24 @@ def draw_dc(rust_proj, suptitle="Size = degree centrality"):
     fig.tight_layout()
     return fig, ax
 
-def draw_everything(rust_proj, rust_df, path="../assets/"):
 
+def draw_everything(rust_proj, rust_df, path="../assets/"):
+    """Draws several plots that I shall use for my data science class.
+
+    Parameters
+    ----------
+    rust_proj : networkx.classes.graph.Graph
+        Graph projection of Rust repository data.
+    rust_df : pandas.DataFrame
+        DataFrame used to create rust_proj.
+    path : str, optional
+        Location to save plots. The default is "../assets/".
+
+    Returns
+    -------
+    None.
+
+    """
     # Note that I'll purposely overwrite fig, ax in each of the plots with
     # the subsequent plots in order to give the garbage collector a hint
     # of what to reclaim.
@@ -124,7 +140,7 @@ def draw_everything(rust_proj, rust_df, path="../assets/"):
                             plot_p=False)
     fig.savefig(path + "metrics_dist_w_obs.tiff", bbox_inches="tight")
 
-    print("Drawing lolly pop plot of counts.")
+    print("Drawing lollypop plot of counts.")
     fig, ax = draw_lollypop(rust_df.repository.value_counts(),
                             "Frequency of scraped GitHub repositories")
     fig.savefig(path + "lollypopcounts.tiff", bbox_inches="tight")
