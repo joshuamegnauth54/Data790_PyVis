@@ -46,7 +46,7 @@ def draw_dc(rust_proj, suptitle="Size = degree centrality"):
     # Numbers were guess and check and would likely break if figsize is
     # changed.
     ax.annotate(dc_text,
-                (18, 1120),
+                (18, 1250),
                 xycoords="figure points",
                 fontsize=14,
                 color="#f8f8f2",
@@ -134,7 +134,9 @@ def draw_everything(rust_proj, rust_df, path="../assets/"):
     fig, ax = p_value_plots([clust_obs, dens_obs, deg_obs, assort_obs],
                             [clust_reps, dens_reps, deg_reps, assort_reps],
                             p_val_titles,
-                            plot_p=False)
+                            plot_p=False,
+                            suptitle="Random graph replicates of selected "+
+                                "measures with observed stats")
     fig.savefig(path + "metrics_dist_w_obs.png", bbox_inches="tight")
 
     # Diameter Radius
