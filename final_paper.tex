@@ -38,12 +38,115 @@ As a nascent but growing language, studying the graph of Rust contributors is th
 
 \section{Background: Rust and GitHub analysis}
 \subsection{Rust}
-Rust is a systems programming language that draws inspiration from OCaml, Haskell, C++, Erlang, Ruby, and others (\cite{rustlang}). Rust's guiding principal is memory safety based on fixing the unsafe qualities of languages like C. C is sometimes described as a "cowboy" language or a language full of "foot-guns." C is full of undefined behavior that the language trusts the programmer to avoid. The language is similarly reticent to complain about incorrect memory access, such as going beyond the bounds of a buffer. C offers extreme power but exacts a mental toll on programmers that must be hyper aware of the implications of their code. Even the best programmers continue to write code that is memory unsafe due to the extreme difficulty of getting it right. Use after free, buffer overflows, dereferencing null pointers, non-thread safe variables, double free, et cetera are all still common and happen by accident more than ignorance (\cite{hosfeltsafety2019}). The Chromium project notes that 70\% of their bugs are related to memory issues that Rust would solve (\cite{chromiummem70}). Rust piqued Mozilla's interest for the same reason which is why they adopted the language with gusto. Mozilla, as mentioned earlier, has rewritten sections of Firefox in Rust over time to catch unsafe behavior at compile time (cite\{hosfeltrewrite2019}).
+Rust is a systems programming language that draws inspiration from OCaml, Haskell, C++, Erlang, Ruby, and others (\cite{rustlang}). Rust's guiding principal is memory safety based on fixing the unsafe qualities of languages like C. C is sometimes described as a "cowboy" language or a language full of "foot-guns." C is full of undefined behavior that the language trusts the programmer to avoid. The language is similarly reticent to complain about incorrect memory access, such as going beyond the bounds of a buffer. C offers extreme power but exacts a mental toll on programmers that must be hyper aware of the implications of their code. Even the best programmers continue to write code that is memory unsafe due to the extreme difficulty of getting it right. Use after free, buffer overflows, dereferencing null pointers, non-thread safe variables, double free, et cetera are all still common and happen by accident more than ignorance (\cite{hosfeltsafety2019}). The Chromium project notes that 70\% of their bugs are related to memory issues that Rust would solve (\cite{chromiummem70}). Rust piqued Mozilla's interest for the same reason which is why they adopted the language with gusto. Mozilla, as mentioned earlier, has rewritten sections of Firefox in Rust over time to catch unsafe behavior at compile time (cite\{hosfeltrewrite2019}). Other companies, including Microsoft (\cite{microsoftrust2020}), Apple (\cite{applerust2020}), and Amazon (\cite{amazonrust2020}), are also writing core infrastructure in Rust.
 
-Rust is notoriously difficult due to a mechanism known as the \textit{borrow checker}. The borrow checker is something of a static analysis tool that imposes restrictions on the access and mutability of data. With all of that said, Rust aims to be as fast or faster than C. Rust is built on explicitness and zero cost abstractions. Like C and C++, programmers don't pay for what they don't use. Rust's strong functional background means that the language precludes classes; Rust is only OOP if you squint and add qualifiers to your definition. Programming in Rust feels far more ergonomic when an idiomatic style of composition and lambda calculus is used rather than trying to build up a C++ or Java style class system. That
+Rust is notoriously difficult due to a mechanism known as the \textit{borrow checker}. The borrow checker is something of a static analysis tool that imposes restrictions on the access and mutability of data. Essentially, unlimited immutable borrows are allowed. Only one mutable borrow is allowed. An immense amount of potential errors are caught with these two rules. Rust types are also labeled whether they may be safely sent across threads---and the borrow checker applies to threading as well. Programmers are often surprised at how often they write unsafe memory accesses. With all of that said, Rust aims to be as fast or faster than C. Rust is built on explicitness and zero cost abstractions. Like C and C++, programmers don't pay for what they don't use. Rust's strong functional background means that the language precludes classes; Rust is only OOP if you squint and add qualifiers to your definition. Programming in Rust feels far more ergonomic when an idiomatic style of composition and lambda calculus is used rather than trying to build up a C++ or Java style class system. Thus, many nascent Rustaceans\footnote{Rustacean is the demonym for Rust programmers.} are initially turned off when they attempt to write Rust code like one would for C. Seemingly innocuous lines of code fail to compile because, say, a variable is not handled in a thread safe manner despite being used in a multithreading context. Another example is the case of floating points. Floating point values are notoriously tricky to work with so Rust places restrictions on certain equality statements for floats (\cite{programmingrust}).
 
-\section{Methods}
+\subsection{GitHub analysis}
+GitHub studies fall concretely into the computational social science camp. Data are usually scraped due to the presence of an API and the ease of retrieving the required data rather than depending on finding a large data set. Researchers deploy techniques such as natural language processing, graph theory, or machine learning.
+
+\section{Methodology}
+\subsection{Scraping GitHub data}
+The first step in analyzing GitHub data is to, of course, retrieve GitHub data. GitHub provides two public APIs, a deprecated REST API as well as a newer GraphQL API. GraphQL is a new, open source query language developed by Facebook designed to replace REST with a strongly typed, faster, and standardized system. GraphQL requests are sent and received as JSON. The actual queries are written in GraphQL (i.e. the query language) (\cite{graphql}). To gather my data, I wrote a scraper in Rust to gather the data I need and deserialize the observations to a CSV. My scraper is open source---like everything else used in this project\footnote{https://github.com/joshuamegnauth54/git-github-graphs Nota bene: My Rust is quite awful, as is most of my code.} My scraper as well as the GraphQL query are available in the footnote. The query shows \textit{exactly} which data were gathered.
+
+With that we've reached the first potential caveat of my research. GitHub's REST API allows directly scraping the list of contributors per repository as I originally intended. However, the GraphQL port isn't yet feature complete. One of the missing features is an endpoint for scraping contributors directly. Thus, I opted to gather participants on every pull request (PR) conversation held in the repository. I essentially gathered data on anyone who contributed or attempted to contribute by submitting code or starting a discussion. This method may be superior to the traditional method of only gathering collaborators because the data contain a weight element by the number of times a person posted in a conversation. However, particularly wordy conversations would likely skew the data hence the caveat. Examining degree centrality, as discussed later, seems to disprove the skew theory because some of the users I expected to have high centrality were present. Regardless, the potential remains especially considering very chatty projects.
+
+\begin{figure}[ht!]
+    \includegraphics[width=\linewidth]{scraper.png}
+    \caption{My scraper gathering the data used for this very paper.}
+    \label{fig:scraper}
+\end{figure}
+
+The second caveat is why I proclaim my project is a toy. A list of the repositories I gathered may be found in table \ref{tab:repoinfo}. I built the list of repositories using GitHub as well as the Rust Package Repository, crates.io.\footnote{https://crates.io/}. Libraries and programs are known as "crates" in Rust parlance. I worked through the list of top projects sorted by stars on GitHub or most downloaded on crates.io. Most projects consisted of too many data points to comfortably analyze. In other words, scraping the entire project would add far too many nodes and edges to handle on a home computer even if my hardware is powerful. Server caliber hardware or distributed computing are usually recommended for big data. As a result I did not choose repositories based on a rigorously scientific method. The list consists of prevalent repositories that are manageable for analysis---a value judgement based on the amount of PRs. The list is reasonably diverse but most certainly flawed and far too small.\footnote{Ironically, I scraped 127000 observations for my thesis which my computer handled fine. I found gauging how much data to scrape difficult and thus scraped far too little data here. However, all of the criticisms would hold with more data as well.}
+
+\begin{table}
+    \centering
+    \begin{tabular}{ccc}
+        \hline\\
+        Repository & Description & Attribute class\\
+        \hline\\
+        amethyst/amethyst & Data driven game engine & Project\\
+        hyperium/hyper & Lower level HTTP library & Library\\
+        nix-rust/nix & Unix API bindings & Core\\
+        rust-random/rand & Pseudorandom numbers library & Library\\
+        sfackler/rust-openssl & Rust OpenSSL bindings & Core\\
+        serde-rs/serde & Serialization and deserialization library & Library\\
+        bevyengine/bevy & Newer (2020) ECS game engine & Project\\
+        retep998/winapi-rs & Windows API bindings & Core\\
+        rayon-rs/rayon & Data parallelism toolkit & Library\\
+        seanmonstar/reqwest & High level HTTP client; uses hyper & Project\\
+        crossbeam-rs/crossbeam & Tools for concurrent programming & Library\\
+        rust-lang/regex & Regular expressions & Core\\
+        PistonDevelopers/piston & Modular game engine & Project\\
+        rust-num/num & Higher precision numbers & Library\\
+        dtolnay/syn & Parses a stream of Rust syntax & Core\\
+        rust-lang/hashbrown & Google's SwissTable algorithm in Rust & Core\\
+        bitflags/bitflags & Generates structs that manage bit flags & Library\\
+        BurntSushi/aho-corasick & String searching algorithm & Core\\
+        \hline
+    \end{tabular}
+    \caption{Data were gathered from the following repositories. All pull request conversations were gathered up to October 23 2020.}
+    \label{tab:repoinfo}
+\end{table}
+
+\subsection{Assortativity}
+Table \ref{tab:repoinfo} also lists each repository's attribute class. Calculating assortativity (homophily) requires an attribute for comparison. For example, a research may calculate assortativity based on sex, political party, et cetera. I manually assigned each repository to either Core, Library, or Project. The distinction is based on my own justifications. Two caveats are apparent here. The first is that the attributes were entirely based on my own thoughts. The second is that the data is lacking so many of the repositories may be assigned different classes if more data were gathered. More data would engender fuller, more robust categories. Additionally, more data would allow reasonably adding more classes as a whole. For example, as a low level language Rust is reasonably popular for game engines and games. Classifications for games, game engines, and graphics and sound APIs could be added if a larger graph were gathered. Other classifications, such as crates used for the internet in some way, can be added to split up the libraries class. The current libraries class does not distinguish between lower level libraries that provide, say, high precision numbers or linear algebra routines and higher level libraries. More classes would be more robust due to granularity.
+
+Core, library, and project are coarsely defined classes. I define core as projects are either directly part of Rust or unofficially a central project. Regex is not an official part of the Rust standard library, but the regex crate is developed by the Rust Project Team and exists under the "rust-lang" account. Thus, I labelled regex as core. Crossbeam is a library of tools for concurrent programming such as thread safe queues, message passing interfaces, atomic types, et cetera. Crossbeam is positioned as a library rather than a core project since the project isn't directly connected to the Rust language. However, libraries like Crossbeam are a big ambiguous since they seem lower level than other libraries despite not being a core project. The project class is probably the easiest to parse. Projects are relatively high level crates that use lower level libraries to produce something designed more for consumers. Ideally projects would be split into programs directly designed for end users and very high level libraries designed to make lower level libraries easier to use by encapsulating common functionality. For example, my scraper is a project\footnote{Obviously not included in the data.} that uses the reqwest and graphql-client libraries. Clearly all three of these are of different scales.
+
+The next step is to actually process each node to add the attributes. I generated the attributes by two methodologies I call \textbf{most active repository} and \textbf{max repository}. \textbf{Max repository} is the repository the user contributed to the most personally in terms of the data. \textbf{Most active repository} is the repository among the set contributed to by the user that is most active total. As an example, consider a programmer who contributed to repositories \textit{awesome-game-engine}, \textit{amazing-cat-data}, \textit{smol-mpd-gui}, and \textit{Firefox}. The user contributed once to Firefox but 25 times to \textit{amazing-game-engine}. She contributed a handful of times to the other two repos. That programmer's \textbf{most active repository} would be Firefox simply because that's obviously the most active project. However, her \textbf{max repository} would be \textit{awesome-game-engine} because she personally contributed to that repo the most.
+
+\subsection{Projection}
+My network data have a bipartite structure. Bipartite structures exist when nodes may be split into two sets where edges exist between the two sets but not within. A simple example is a product network. Customers buy products which leads to two disjoint node sets, Customers and Products. My network data contain \textit{authors} and \textit{pull requests}. The two sets don't overlap, but we're more interested in the connections between authors than pull requests. A graph projection allows projection pull requests onto authors so that each author shares an edge if they commented on the same PR.
+
+\subsection{Python code}
+My code is fully open source and available on GitHub across two repositories. My thesis repository\footnote{https://github.com/joshuamegnauth54/GamerDistributionThesis2020} contains convenience functions and tools for plotting networks and calculating statistics using NetworkX. My functions are designed to encapsulate certain common tasks such as plotting with a consistent style or calculating random graph replicates. The code is written completely in Python using the NetworkX (\cite{networkx}), matplotlib (\cite{Hunter:2007}), and pandas (\cite{reback2020pandas}) libraries. Some of the code is wonky because I originally began coding for a different project. Some of the function parameters are "gamers" in some way which refers to the original network used when writing the code. However, the code is general enough to work with my Rust repositories graph as well. The repository\footnote{https://github.com/joshuamegnauth54/Data790\_PyVis/tree/main/src} for this paper contains the code used to load and process the network as well as how the convenience functions were called to produce the results below.
+
+\begin{figure}
+    \includegraphics[width=\linewidth]{metrics_dist.png}
+    \caption{Distribution of randomly calculated graph replicates without the observed statistic.}
+    \label{fig:metricsdist}
+\end{figure}
+
+I calculated random graph replicates in order to compare my observed statistics to a simulated null distribution. P values are the probability of obtaining a statistic at least as extreme as what was observed. P-values are deeply flawed and don't indicate proof of anything. However, they're useful for a big picture view of the quirkiness of a statistic. The replicates were calculated by first simulating 10000 random graphs with parameters similar to my \textit{unprojected} graph. Next, I projected the simulated graph followed by calculating the requisite statistic. After 10000 repetitions of this process we end up with a distribution of random expected statistics with a visualize indication of the weirdness of our observed stat. The p-values are effectively zero at 10000 replicates but may be slightly less strange at a higher N.
+
+\begin{figure}
+    \includegraphics[width=\linewidth]{metrics_dist_w_obs.png}
+    \caption{Random graph replicates with the observed statistic in red. The p-values are effectively zero at 10000 replicates.}
+    \label{fig:metricswobs}
+\end{figure}
 
 \section{Results}
+The first results landmark of note is the size of my full network as opposed to the largest connected component. The network is largely fully connected as only 33 nodes and one edge are present in the full network while absent from the LCC as shown in table \ref{tab:netresults}. Fundamentally, this means that the full PR network (since every node was gathered for those repos) is almost fully connected. Most nodes are reachable in some way. For a PR network this means a contributor that is connected to other contributors posted in most PR conversations. A metric like this is somewhat tautological for a PR network. Likely most PRs would have a contributor connected to other contributors responding in some way even if the PR is eventually discarded. Regardless, demonstrating mathematical proof of an "obvious" phenomenon is always useful.
 
+\begin{figure}
+    \includegraphics[width=\linewidth]{network_full_degcent.png}
+    \caption{Full network projection of the PR network. Nodes are colored by attribute class, and size indicates degree centrality.}
+    \label{fig:fullnet}
+\end{figure}
+
+\begin{table}
+    \centering
+    \begin{tabular}{ccc}
+        \hline\\
+        Metric & Full network & LCC\\
+        \hline\\
+        Nodes & 2656 & 2623
+        Edges & 12302 & 12301
+        Radius & $\infty$ & 3 (size: 9)
+        Diameter & $\infty$ & 6 (size: 3)
+        Clustering & 0.005134 & 0.005198
+        Density & 0.003489 & 0.003577
+        Degree assortativity & -0.250883 & -0.250925
+        Most active assort & 0.461229 & 0.461189
+        Max repo assort & 0.589387 & 0.589352
+        Repo type assort & 0.576195 & 0.576170
+    \end{tabular}
+    \caption{Metrics calculated via NetworkX for both the full network as well as the largest connected component. Radius and diameter are invalid for unconnected graphs. Repo type assort refers to the Core, Library, and Projects classes from earlier.}
+    \label{tab:netresults}
+\end{table}
+
+Radius and diameter are more useful statistics for my network. Radius and diameter measure closeness via eccentricity. Nodes with lower eccentricity are relatively closer to other nodes because they require less hops to reach them. I calculated radius using both NetworkX's default algorithm as well as using the barycenter metric. NetworkX's default algorithm finds nine nodes with the lowest eccentricity. Despite the myriad flaws explained earlier, most of the center nodes seem extremely reasonable. Names such as BurntSushi or David Tolnay are recognizable as pivotal Rustaceans. Reasonably, a Rust programmer who is aware of their contributions to the language would expect them to be closer to other nodes in some way by sheer inertia alone. These users tend to review PRs so they have a lot of spread in the community. Another user in the center, retep998, owns a major and useful repository: the Windows API bindings. That user also submitted PRs in some way to the random numbers, hyper, and OpenSSL bindings crates.
+
+\printbibliography
 \end{document}

@@ -7,6 +7,7 @@ from joshnettools.gamersdraw import draw_degree_centrality, add_network_leg\
 from joshnettools.randomnet import random_clust, random_density,\
     random_deg_cent, random_deg_assort, random_assort, dispatcher
 from joshnettools.pvalueplots import p_value_plots
+from joshnettools.main import print_useful_metrics
 
 
 def draw_dc(rust_proj, suptitle="Size = degree centrality"):
@@ -155,3 +156,7 @@ def draw_everything(rust_proj, rust_df, path="../assets/"):
     fig, ax = draw_lollypop(rust_df.repository.value_counts(),
                             "Count of scraped Rust repository PR convos")
     fig.savefig(path + "lollypopcounts.png", bbox_inches="tight")
+
+
+def rust_print_useful(rust_proj):
+    print_useful_metrics(rust_proj, ["most_active_repo", "max_repo", "rtype"])

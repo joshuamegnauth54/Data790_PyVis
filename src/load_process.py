@@ -4,6 +4,20 @@ import seaborn as sns
 import networkx as nx
 
 def set_repos_attributes(repos_df, projection):
+    """Add attributes to the Rust repos graph.
+
+    Parameters
+    ----------
+    repos_df : pandas.DataFrame
+        Loaded Rust data in a DataFrame.
+    projection : networkx.classes.graph.Graph
+        Projection of repos_df graph..
+
+    Returns
+    -------
+    None.
+    """
+    projection.name = "Rust repositories graph"
 
     # Repository user contributed to the most (in terms of the data rather
     # than the user as a whole.) Contributed is defined as partaking in
@@ -14,7 +28,9 @@ def set_repos_attributes(repos_df, projection):
 
     # Get the most active repository contributed to per user
     # In other words, the repository that is most prominent among
-    # those the user contributed to
+    # those the user contributed to total.
+    # So if the user contributed to three repositories the most_active
+    # attribute would be the repository that is most active among the three.
     repocount = repos_df.repository.value_counts().reset_index()
     repocount.columns = ["repo", "count"]
 
@@ -123,4 +139,3 @@ def process_repos_data(path="rust_repos.json",
     set_repos_attributes(repos_df, projection)
 
     return repos_df, projection
-
