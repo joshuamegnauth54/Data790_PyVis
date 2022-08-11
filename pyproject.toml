@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "data790_pyvis"
+version = "1.0.0"
+description = "Data 790 (visualization) final projects and related code."
+authors = ["Joshua Megnauth"]
+license = "BSD-3-Clause and CC-BY-4.0"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+joshnettools = { git = "https://github.com/joshuamegnauth54/GamerDistributionThesis2020.git" }
+jupyter = "^1.0.0"
+matplotlib = "^3.5.3"
+networkx = "^2.8.5"
+numpy = "^1.23.1"
+pandas = "^1.4.3"
+plotly = "^5.10.0"
+seaborn = "^0.11.2"
+statsmodels = "^0.13.2"
+
+[tool.poetry.dev-dependencies]
+black = "^22.6.0"
+mypy = "^0.971"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
