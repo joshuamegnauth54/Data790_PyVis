@@ -1,32 +1,34 @@
-"""Not actually main. Just convenience functions.
-"""
+"""Not actually main. Just convenience functions."""
 import networkx as nx
+from networkx import Graph
+from matplotlib.figure import Figure
+from matplotlib.axes import Axes, Subplot
 
-from joshnettools.gamersdraw import draw_degree_centrality, add_network_leg\
-    draw_lollypop
-from joshnettools.randomnet import random_clust, random_density,\
-    random_deg_cent, random_deg_assort, random_assort, dispatcher
+from joshnettools.gamersdraw import draw_degree_centrality, add_network_leg, draw_lollypop
+from joshnettools.randomnet import random_clust, random_density, random_deg_cent, random_deg_assort, random_assort, dispatcher
 from joshnettools.pvalueplots import p_value_plots
 from joshnettools.main import print_useful_metrics
 
 
-def draw_dc(rust_proj, suptitle="Size = degree centrality"):
+def draw_dc(rust_proj: Graph, suptitle: str ="Size = degree centrality") -> tuple[Figure, Axes]:
     """Plot the rust_proj network with a degree centrality chart.
 
     Parameters
     ----------
-    rust_proj : networkx.classes.graph.Graph
+    rust_proj: networkx.classes.graph.Graph
         Rust pull request conversations network.
-    suptitle : str, optional
+    suptitle: str, optional
         Title. The default is "Size = degree centrality".
 
     Returns
     -------
-    fig : matplotlib.figure.Figure
+    fig: matplotlib.figure.Figure
         Plot's Figure.
-    ax : matplotlib.axes._subplots.AxesSubplot
+    ax: matplotlib.axes.Axes
         Axes associated with plot.
     """
+    fig: Figure
+    ax: Axes
     (fig, ax, _) = draw_degree_centrality(rust_proj, color="color",
                                           edge_color="#44475a", alpha=0.6)
 
